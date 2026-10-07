@@ -649,6 +649,27 @@ def _security_headers(response):
     response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
     return response
 
+
+
+FRONTEND_DIST = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    'frontend',
+    'dist'
+)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    if path:
+        full_path = os.path.join(FRONTEND_DIST, path)
+
+        if os.path.isfile(full_path):
+            return send_from_directory(FRONTEND_DIST, path)
+
+    return send_from_directory(FRONTEND_DIST, 'index.html')
+
+
+    
 if __name__ == '__main__':
     app.run(
         debug=False,
