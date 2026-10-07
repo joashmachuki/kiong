@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/dist
+**/__pycache__
+*.py[cod]
+*.bak
+*.bak*
+.env
+.env.*
+venv
+.venv
+*.db
+*.sqlite
+*.sqlite3
+.DS_Store

@@ -569,7 +569,7 @@ def serve_file(filename):
 # ==================== MAIN ====================
 
 # ==================== SERVE THE WEBSITE ====================
-SITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'site')
+SITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend', 'dist')
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
