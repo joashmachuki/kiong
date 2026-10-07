@@ -18,6 +18,8 @@ import json
 import uuid
 
 app = Flask(__name__)
+os.makedirs(app.instance_path, exist_ok=True)
+
 def _load_env_file():
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
     if os.path.exists(path):
