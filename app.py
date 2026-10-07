@@ -665,11 +665,13 @@ def serve_frontend(path):
 
         if os.path.isfile(full_path):
             return send_from_directory(FRONTEND_DIST, path)
+    print("FRONTEND_DIST =", FRONTEND_DIST)
+    print("INDEX EXISTS =", os.path.exists(os.path.join(FRONTEND_DIST, 'index.html')))
 
     return send_from_directory(FRONTEND_DIST, 'index.html')
 
 
-    
+
 if __name__ == '__main__':
     app.run(
         debug=False,

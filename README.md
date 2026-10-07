@@ -57,6 +57,72 @@ default development API URL.
 
 ## DigitalOcean App Platform
 
+### Buildpacks: Python backend and React static site
+
+If the Python service deploys but `/` returns 404 while `/api/health` works,
+the React build may be missing: Flask expects `frontend/dist/index.html`,
+and the Python buildpack alone does not run the frontend's Vite build.
+
+For deployment without Docker, keep the existing Python Web Service named
+`kiong`, with source directory `/`, port `8080`, and run command:
+
+```sh
+gunicorn --bind 0.0.0.0:8080 --access-logfile - --error-logfile - app:app
+```
+
+Add a **Static Site** component named `frontend` to the **same app**, using
+the same repository and deployed branch:
+
+| Setting | Value |
+| --- | --- |
+| Source directory | `frontend` |
+| Buildpack | Node.js |
+| Build command | `npm ci --include=dev && npm run build` |
+| Output directory | `dist` |
+| HTTP route | `/` |
+| Index document | `index.html` |
+| Catchall document | `index.html` |
+
+Leave `VITE_API_URL` unset so the production frontend calls `/api` on the same
+domain. Set the backend routes to `/api` and `/uploads`, and preserve both path
+prefixes. Flask's routes include these prefixes, so stripping them causes 404s.
+
+In the existing App Spec, merge the following `ingress` configuration, replacing
+the old root route to `kiong`. Keep the existing services, secrets, domains, and
+other settings. This is a routing fragment, not a complete replacement App Spec.
+Use the actual component names if different; remove conflicting legacy `routes`
+entries when migrating them to `ingress`.
+
+```yaml
+ingress:
+  rules:
+    - match:
+        path:
+          prefix: /api
+      component:
+        name: kiong
+        preserve_path_prefix: true
+    - match:
+        path:
+          prefix: /uploads
+      component:
+        name: kiong
+        preserve_path_prefix: true
+    - match:
+        path:
+          prefix: /
+      component:
+        name: frontend
+```
+
+Redeploy and check `/`, `/admin/login`, `/api/health`, and `/api/vehicles`.
+The catchall allows React Router pages to load when opened directly.
+
+References: [static sites](https://docs.digitalocean.com/products/app-platform/how-to/manage-static-sites/)
+and [App Spec routing](https://docs.digitalocean.com/products/app-platform/reference/app-spec/).
+
+### Alternative: one Docker Web Service
+
 Deploy this repository as **one Web Service** using the root `Dockerfile`.
 The image builds React into `frontend/dist`, then Gunicorn runs Flask, which
 serves both the website and `/api`. No separate frontend process is needed.
