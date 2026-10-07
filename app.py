@@ -573,6 +573,10 @@ def serve_file(filename):
 # ==================== SERVE THE WEBSITE ====================
 SITE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend', 'dist')
 
+@app.route('/api/health')
+def health():
+    return jsonify({'status': 'ok'})
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_site(path):
@@ -647,4 +651,8 @@ def _security_headers(response):
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=False, host='127.0.0.1', port=int(os.environ.get('PORT', 5000)))
+    app.run(
+        debug=False,
+        host='0.0.0.0',
+        port=int(os.environ.get('PORT', 8080))
+    )
